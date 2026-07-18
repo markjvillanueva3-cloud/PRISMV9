@@ -34,7 +34,7 @@
 
 import http from "node:http";
 import { spawn } from "node:child_process";
-import { existsSync, statSync, writeFileSync, mkdirSync } from "node:fs";
+import { existsSync, statSync, writeFileSync, mkdirSync, openSync, closeSync, appendFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -52,6 +52,8 @@ function repoPaths() {
   return {
     daemonScript: join(repoRoot, "scripts", "master-index-daemon.mjs"),
     stampFile: join(repoRoot, "state", "shared", ".index-daemon-guardian.stamp"),
+    logFile: join(repoRoot, "state", "shared", "daemons", "index-daemon.log"),
+    ledgerFile: join(repoRoot, "state", "shared", "daemons", "index-daemon-relaunch.jsonl"),
   };
 }
 
@@ -110,17 +112,34 @@ function touchStamp(stampFile) {
 }
 
 /** Spawn the daemon detached with a big heap. Returns child pid, or null on failure. The
- *  daemon's own EADDRINUSE-exit-0 guard means a double-spawn is harmless (single instance). */
-function spawnDaemon(daemonScript) {
+ *  daemon's own EADDRINUSE-exit-0 guard means a double-spawn is harmless (single instance).
+ *
+ *  Was `stdio:"ignore"` -> every death reason (server error+exit, uncaughtException,
+ *  warm-up failure) was discarded and no log existed, so "the daemon keeps dying" was
+ *  undiagnosable folklore. Now stdout+stderr append to state/shared/daemons/index-daemon.log
+ *  and each relaunch appends a ledger line (ts, event, pid) for restart-count/timing forensics. */
+function spawnDaemon(daemonScript, logFile, ledgerFile, evName) {
   try {
     if (!existsSync(daemonScript)) return null;
-    const child = spawn(
-      process.execPath,
-      ["--max-old-space-size=" + DAEMON_HEAP_MB, daemonScript],
-      { detached: true, stdio: "ignore", windowsHide: true },
-    );
+    let fd = "ignore";
+    try { mkdirSync(dirname(logFile), { recursive: true }); fd = openSync(logFile, "a"); } catch { fd = "ignore"; }
+    let child;
+    try {
+      child = spawn(
+        process.execPath,
+        ["--max-old-space-size=" + DAEMON_HEAP_MB, daemonScript],
+        { detached: true, stdio: ["ignore", fd, fd], windowsHide: true },
+      );
+    } finally {
+      // Parent closes its copy of the fd; the detached child keeps its inherited handle.
+      if (typeof fd === "number") { try { closeSync(fd); } catch { /* noop */ } }
+    }
     child.unref();
-    return child.pid ?? null;
+    const pid = child.pid ?? null;
+    try {
+      appendFileSync(ledgerFile, JSON.stringify({ ts: new Date().toISOString(), event: evName, pid, reason: "health-probe-down" }) + "\n");
+    } catch { /* best-effort ledger */ }
+    return pid;
   } catch { return null; }
 }
 
@@ -147,7 +166,7 @@ async function main() {
   const host = process.env.PRISM_INDEX_DAEMON_HOST || DEFAULT_HOST;
   const throttleMs = Number(process.env.PRISM_INDEX_DAEMON_GUARDIAN_THROTTLE_MS) > 0
     ? Number(process.env.PRISM_INDEX_DAEMON_GUARDIAN_THROTTLE_MS) : DEFAULT_THROTTLE_MS;
-  const { daemonScript, stampFile } = repoPaths();
+  const { daemonScript, stampFile, logFile, ledgerFile } = repoPaths();
 
   // UserPromptSubmit fast path: probed within the throttle window -> cheap no-op (stamp mtime read).
   if (evName === "UserPromptSubmit" && recentlyChecked(stampFile, throttleMs)) {
@@ -160,7 +179,7 @@ async function main() {
 
   if (healthy) { emitContinue(evName); return; } // daemon up -> silent (no per-prompt banner)
 
-  const pid = spawnDaemon(daemonScript);
+  const pid = spawnDaemon(daemonScript, logFile, ledgerFile, evName);
   const advisory = pid !== null
     ? `index-daemon guardian: warm search daemon (:${port}) was DOWN -- relaunched detached (pid ${pid}, warming ~2s). Graph-inject hooks + subagent search use the in-process fallback until warm.`
     : `index-daemon guardian: warm search daemon (:${port}) is DOWN and relaunch FAILED (script missing / spawn refused). Searches use the slower in-process fallback. Run: node scripts/master-index-daemon.mjs`;
