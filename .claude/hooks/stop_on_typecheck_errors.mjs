@@ -48,9 +48,10 @@ function cont(note) {
     : { continue: true };
   try { process.stdout.write(JSON.stringify(out)); } catch { /* stdout gone */ }
 }
-/** Enforce: block the Stop with a reason (Claude Code Stop-hook block contract). */
+/** Enforce: block the Stop with a reason. Emits continue:false to match BOTH the Claude Code
+ *  Stop contract AND the stop-bundle aggregator (reads parsed.continue===false). */
 function block(reason) {
-  try { process.stdout.write(JSON.stringify({ decision: "block", reason })); } catch { /* noop */ }
+  try { process.stdout.write(JSON.stringify({ continue: false, stopReason: reason, reason })); } catch { /* noop */ }
 }
 
 /** True if any override line references this session id (best-effort; absent ledger => false). */
