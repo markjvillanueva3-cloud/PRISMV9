@@ -10,31 +10,31 @@ param(
   # sweep so the two reads of process state are independent (no contention
   # on the same Win32_Process enumeration).
   [int]$StartOffsetSeconds = 330,
-  # Burn-in mode bakes --dry-run into the task — sweep classifies but never
+  # Burn-in mode bakes --dry-run into the task -- sweep classifies but never
   # writes telemetry or emits AGENT_CHAT advisories. Use for 1-2 cycles to
   # confirm correct sampling on this host, then reinstall without -DryRun.
   [switch]$DryRun,
   [switch]$RunNow,
   [switch]$Uninstall,
-  # Legacy: register with NO principal → Logon Mode "Interactive only" (task
+  # Legacy: register with NO principal -> Logon Mode "Interactive only" (task
   # dies when you log off). Default (this switch OFF) hardens to S4U so the
   # monitor runs whether-logged-on-or-not.
   [switch]$Interactive,
   # Strongest principal: run as SYSTEM (LogonType ServiceAccount). SYSTEM can
   # enumerate ANY user's processes; S4U only the installing user's. The
-  # monitor reads but never kills, so S4U is sufficient — SYSTEM is opt-in.
+  # monitor reads but never kills, so S4U is sufficient -- SYSTEM is opt-in.
   [switch]$AsSystem
 )
 
-# install-fleet-memory-monitor-task.ps1 — durable backbone for the
+# install-fleet-memory-monitor-task.ps1 -- durable backbone for the
 # system-RAM + per-chat-tree memory monitor (scripts/fleet-memory-monitor.mjs).
 #
 # Why this is separate from the fleet-reaper task: they answer DIFFERENT
 # questions.
 #   * fleet-reaper-sweep.mjs    "which orphan processes of CRASHED slots
-#                                should I kill?"      — destructive, slot-aware
+#                                should I kill?"      -- destructive, slot-aware
 #   * fleet-memory-monitor.mjs  "which LIVE chat tree is the largest, and is
-#                                the box under pressure?"  — advisory, tree-aware
+#                                the box under pressure?"  -- advisory, tree-aware
 #
 # The monitor closes the gap CLAUDE.md describes as "fleet-reaper isn't
 # enough since it drops during alpha's compaction": when all 13 chats are
@@ -45,7 +45,7 @@ param(
 # Independence invariant: S4U principal + AtStartup trigger + 5-min repeat +
 # RestartCount 3 means the monitor survives every claude session closing,
 # every reboot, every fleet-reaper restart. It is the load-bearing memory
-# observation layer — never gated by any single chat or process.
+# observation layer -- never gated by any single chat or process.
 #
 # Per [[feedback_never_delete_only_disable]]: this REGISTERS a task; it can
 # be Disable-ScheduledTask'd to pause without removing. Use -Uninstall to remove.
@@ -55,7 +55,7 @@ $ErrorActionPreference = 'Stop'
 $isAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole(
   [Security.Principal.WindowsBuiltinRole]::Administrator)
 if (-not $isAdmin) {
-  throw "Run from an ELEVATED PowerShell — (un)registering the scheduled task '$TaskName' needs admin rights."
+  throw "Run from an ELEVATED PowerShell -- (un)registering the scheduled task '$TaskName' needs admin rights."
 }
 
 # Always target the canonical main tree, never a worktree (a worktree's
@@ -63,7 +63,7 @@ if (-not $isAdmin) {
 $monitorScript = 'H:\PRISM\scripts\fleet-memory-monitor.mjs'
 
 # Prefer the portable node; fall back to PATH then Program Files. Mirrors
-# install-fleet-reaper-task.ps1:67-70 — keep in sync.
+# install-fleet-reaper-task.ps1:67-70 -- keep in sync.
 $nodeExe = $null
 foreach ($cand in @('H:\Tools\nodejs\node.exe', 'C:\Program Files\nodejs\node.exe')) {
   if (Test-Path $cand) { $nodeExe = $cand; break }
@@ -128,7 +128,7 @@ if (-not $Interactive) {
   }
 }
 
-$desc = "System-RAM + per-chat-tree memory monitor for the 13-chat PRISM fleet (fleet-memory-monitor.mjs --once$(if ($DryRun) { ' --dry-run [BURN-IN]' })). Samples Win32_OperatingSystem physical+commit pressure and attributes RSS per live claude.exe process tree; identifies the largest-RSS chat tree as the operator's /compact target on warn/critical pressure. Advisory only — never kills. Runs whether-logged-on (S4U) + at boot. Closes the gap fleet-reaper-sweep leaves when all 13 chats are LIVE and pressure climbs."
+$desc = "System-RAM + per-chat-tree memory monitor for the 13-chat PRISM fleet (fleet-memory-monitor.mjs --once$(if ($DryRun) { ' --dry-run [BURN-IN]' })). Samples Win32_OperatingSystem physical+commit pressure and attributes RSS per live claude.exe process tree; identifies the largest-RSS chat tree as the operator's /compact target on warn/critical pressure. Advisory only -- never kills. Runs whether-logged-on (S4U) + at boot. Closes the gap fleet-reaper-sweep leaves when all 13 chats are LIVE and pressure climbs."
 
 # Splat so -Principal is omitted entirely in legacy -Interactive mode
 # (passing -Principal `$null throws; an absent key is the correct form).
@@ -145,7 +145,7 @@ Register-ScheduledTask @registerParams | Out-Null
 
 $mode = if ($DryRun) { 'DRY-RUN burn-in (no telemetry/advisory writes)' } else { 'live' }
 $autonomy = if ($Interactive) {
-  'INTERACTIVE-ONLY (legacy — dies when you log off)'
+  'INTERACTIVE-ONLY (legacy -- dies when you log off)'
 } elseif ($AsSystem) {
   'AUTONOMOUS as SYSTEM (runs at boot + whether-logged-on-or-not)'
 } else {
@@ -163,7 +163,7 @@ if ($RunNow) {
     $info = Get-ScheduledTaskInfo -TaskName $TaskName
   } while ($info.LastTaskResult -eq 267009 -and (Get-Date) -lt $deadline)
   if ($info.LastTaskResult -eq 267009) {
-    Write-Host "Triggered immediate run — still running after 60s (LastTaskResult=267009)."
+    Write-Host "Triggered immediate run -- still running after 60s (LastTaskResult=267009)."
   } else {
     # Exit codes: 0 clean, 1 warn, 2 critical, 3 measurement failure.
     $name = switch ($info.LastTaskResult) {
@@ -178,7 +178,7 @@ if ($RunNow) {
 }
 
 Write-Host ""
-Write-Host "Knobs (env, read by the sweep — full list in the sweep script header):"
+Write-Host "Knobs (env, read by the sweep -- full list in the sweep script header):"
 Write-Host "  PRISM_FLEET_MEMMON_DISABLE=1                      sweep refuses to write/emit"
 Write-Host "  PRISM_FLEET_MEMMON_WARN_PCT=N                     warn threshold (default 80)"
 Write-Host "  PRISM_FLEET_MEMMON_CRIT_PCT=N                     critical threshold (default 92)"

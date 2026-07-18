@@ -40,7 +40,7 @@
     Use S4U principal (current user) instead of SYSTEM.
 
 .PARAMETER Interactive
-    Legacy on-login-only mode (no -Principal — runs only when user is logged in).
+    Legacy on-login-only mode (no -Principal -- runs only when user is logged in).
 
 .PARAMETER DryRun
     Print what would be done without making changes.
@@ -105,7 +105,7 @@ $Action = New-ScheduledTaskAction `
     -Argument "`"$ScriptPath`"" `
     -WorkingDirectory $PrismRoot
 
-# Compose trigger — repeat every $IntervalMinutes, indefinite
+# Compose trigger -- repeat every $IntervalMinutes, indefinite
 $startTime = (Get-Date).AddSeconds($StartOffsetSeconds)
 $Trigger = New-ScheduledTaskTrigger -Once -At $startTime `
     -RepetitionInterval (New-TimeSpan -Minutes $IntervalMinutes)
@@ -127,12 +127,12 @@ $RegisterParams = @{
     Action = $Action
     Trigger = $Trigger
     Settings = $Settings
-    Description = "PRISM Cost Alarm — runs CostAlarmEngine.check() every $IntervalMinutes min. COST-CASCADE-MS0/U-COST-ALARM."
+    Description = "PRISM Cost Alarm -- runs CostAlarmEngine.check() every $IntervalMinutes min. COST-CASCADE-MS0/U-COST-ALARM."
     Force = $true
 }
 
 if ($Interactive) {
-    Write-Step "principal: Interactive (legacy on-login-only — only fires when user is logged in)"
+    Write-Step "principal: Interactive (legacy on-login-only -- only fires when user is logged in)"
     # No -Principal: registers under default user context, Interactive logon mode
 } elseif ($AsCurrentUser) {
     $userName = "$env:USERDOMAIN\$env:USERNAME"
@@ -158,19 +158,19 @@ if ($DryRun) {
 try {
     $existing = Get-ScheduledTask -TaskName $TaskName -TaskPath $TaskPath -ErrorAction SilentlyContinue
     if ($existing) {
-        Write-Warn "task already exists — replacing"
+        Write-Warn "task already exists -- replacing"
         Unregister-ScheduledTask -TaskName $TaskName -TaskPath $TaskPath -Confirm:$false
     }
     $task = Register-ScheduledTask @RegisterParams
     Write-Step "registered: $TaskName"
     Write-Step "next run: $($task.Triggers[0].StartBoundary)"
 } catch {
-    Write-Err "Register-ScheduledTask failed — $($_.Exception.Message)"
+    Write-Err "Register-ScheduledTask failed -- $($_.Exception.Message)"
     exit 3
 }
 
 if ($RunNow) {
-    Write-Step "RunNow — triggering one immediate execution"
+    Write-Step "RunNow -- triggering one immediate execution"
     Start-ScheduledTask -TaskName $TaskName -TaskPath $TaskPath
     # Poll for completion up to 60s
     $deadline = (Get-Date).AddSeconds(60)
@@ -187,7 +187,7 @@ if ($RunNow) {
                 3 { "fatal" }
                 default { "rc=$rc" }
             }
-            Write-Step "first run complete — LastTaskResult=$rcHex ($exitName) at $($info.LastRunTime.ToString('o'))"
+            Write-Step "first run complete -- LastTaskResult=$rcHex ($exitName) at $($info.LastRunTime.ToString('o'))"
             break
         }
         Start-Sleep -Milliseconds 500
